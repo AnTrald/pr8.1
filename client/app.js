@@ -30,15 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('ServiceWorker зарегистрирован');
-                    checkNotificationPermission();
-                })
-                .catch(error => {
-                    console.log('Ошибка регистрации:', error);
-                });
+        window.addEventListener('load', async () => {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('SW registered:', registration.scope);
+
+                // Проверка состояния SW
+                if (registration.installing) {
+                    console.log('SW installing');
+                } else if (registration.waiting) {
+                    console.log('SW installed');
+                } else if (registration.active) {
+                    console.log('SW active');
+                }
+            } catch (error) {
+                console.error('SW registration failed:', error);
+            }
         });
     }
 });
@@ -176,6 +183,8 @@ async function toggleNotifications() {
             setInterval(checkUncompletedTasks, 2 * 60 * 60 * 1000);
         }
     }
+    console.log(document.getElementById('notifications-btn'))
+    checkNotificationPermission()
 }
 
 function checkUncompletedTasks() {
